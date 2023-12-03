@@ -1,19 +1,34 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using AspNetCoreHero.ToastNotification.Abstractions;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.FileProviders;
+using NETCore.Encrypt.Extensions;
 using OnlineExam.Models;
+using OnlineExam.ViewModels;
+using System;
 using System.Diagnostics;
+using System.Security.Claims;
 
 namespace OnlineExam.Controllers
 {
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
-
-        public HomeController(ILogger<HomeController> logger)
+        private readonly AppDBContext _context;
+        private readonly INotyfService _notify;
+        private readonly IConfiguration _config;
+        private readonly IFileProvider _fileProvider;
+        public HomeController(ILogger<HomeController> logger, AppDBContext context, INotyfService notify ,IConfiguration config, IFileProvider fileProvider)
         {
             _logger = logger;
+            _context = context;
+            _notify = notify;
+            _config = config;
+            _fileProvider = fileProvider;
         }
 
-        public IActionResult Index()
+               public IActionResult Index()
         {
             return View();
         }
@@ -28,6 +43,103 @@ namespace OnlineExam.Controllers
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
+
+        public IActionResult Register()
+        {
+            return View();
+        }
+        [HttpPost]
+        public IActionResult Register(RegisterModel model)
+        {
+            if (_context.Students.Count(s => s.UserName == model.UserName) > 0)
+            {
+                ViewBag.username = " Bu Kullanici Adi Kayitlidir!";
+                //_notify.Error("Girilen Kullanıcı Adı Kayıtlıdır!");
+                return View(model);
+            }
+            if (_context.Students.Count(s => s.Email == model.Email) > 0)
+            {
+                ViewBag.email = " Bu E-mail Kayitlidir!";
+                //_notify.Error("Girilen E-Posta Adresi Kayıtlıdır!");
+
+                return View(model);
+            }
+            var rootFolder = _fileProvider.GetDirectoryContents("wwwroot");
+            var photoUrl = "-";
+            if (model.PhotoFile.Length > 0 && model.PhotoFile != null)
+            {
+                var filename = Guid.NewGuid().ToString() + Path.GetExtension(model.PhotoFile.FileName);
+                var photoPath = Path.Combine(rootFolder.First(x => x.Name == "Photos").PhysicalPath, filename);
+                using var stream = new FileStream(photoPath, FileMode.Create);
+                model.PhotoFile.CopyTo(stream);
+                photoUrl = filename;
+
+            }
+            var hashedpass = MD5Hash(model.Password);
+            Student student = new Student()
+            {
+                Email = model.Email,
+                FullName = model.FullName,
+                Password = hashedpass,
+                PhotoUrl = photoUrl,
+                UserName = model.UserName,
+
+                
+            };
+            _context.Students.Add(student);
+            _context.SaveChanges();
+            ViewBag.Student =" Basariyla Kayit Oldunuz!";
+            //_notify.Success("Üye Kaydı Yapılmıştır. Oturum Açınız");
+            return View();
+        }
+        public IActionResult Login()
+        {
+            return View();
+        }
+        [HttpPost]
+        public IActionResult Login(LoginModel model)
+        {
+            var hashedpass = MD5Hash(model.Password);
+            var user = _context.Students.Where(s => s.UserName == model.UserName && s.Password == hashedpass).SingleOrDefault();
+
+            if (user == null)
+
+            {
+                _notify.Error("Kullanıcı Adı veya Parola Geçersizdir!");
+                return View();
+            }
+
+            List<Claim> claims = new List<Claim>() {
+
+                new Claim(ClaimTypes.Name, user.FullName),
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                //new Claim(ClaimTypes.Role,user.Role),
+                new Claim("UserName",user.UserName),
+                //new Claim("PhotoUrl",user.PhotoUrl),
+
+                };
+
+            ClaimsIdentity idetity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+
+            ClaimsPrincipal principal = new ClaimsPrincipal(idetity);
+
+            AuthenticationProperties properties = new AuthenticationProperties()
+            {
+                AllowRefresh = true,
+                IsPersistent = model.KeepMe
+            };
+            HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal, properties);
+
+            return RedirectToAction("Index","ToDo");
+        }
+
+        public string MD5Hash(string pass)
+        {
+            var salt = _config.GetValue<string>("AppSettings:MD5Salt");
+            var password = pass + salt;
+            var hashed = password.MD5();
+            return hashed;
+        }
     }
-    public 
+    
 }
