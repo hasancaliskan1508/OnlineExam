@@ -115,7 +115,7 @@ namespace OnlineExam.Controllers
                 new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
                 //new Claim(ClaimTypes.Role,user.Role),
                 new Claim("UserName",user.UserName),
-                //new Claim("PhotoUrl",user.PhotoUrl),
+                new Claim("PhotoUrl",user.PhotoUrl),
 
                 };
 

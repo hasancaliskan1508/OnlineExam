@@ -58,9 +58,7 @@ namespace OnlineExam.Controllers
                 {
                     Title = model.Title,
                     Status = model.Status,
-                };
-                //todo.Title = model.Title;
-                //todo.Status = model.Status;
+                };                
                 _context.ToDoLists.Add(todo);
                 _context.SaveChanges();
                 sonuc.Status = true;
