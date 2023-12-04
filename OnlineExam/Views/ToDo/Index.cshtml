@@ -13,9 +13,9 @@
             <thead>
                 <tr>
                     <th>SN</th>
-                    <th>Başlık</th>
-                    <th>Durumu</th>
-                    <th>Düzenle</th>
+                    <th>Görev Adı</th>
+                    <th>Görev Durumu</th>
+                    <th>Görevi Düzenle</th>
                 </tr>
             </thead>
             <tbody>
@@ -29,11 +29,11 @@
         <h3 id="baslik"></h3><hr />
 
         <div class="mb-3">
-            <label>Başlık</label>
+            <label>Görev Adı</label>
             <input type="text" class="form-control" id="txtTitle" />
         </div>
         <div class="mb-3">
-            <label>Durumu</label>
+            <label>Görev Durumu</label>
             <select class="form-select" id="cbStatus">
                 <option value="0">Bekliyor</option>
                 <option value="1">Tamamlandı</option>
@@ -64,7 +64,7 @@
             function LoadTodos() {
                 $("#btnVazgec").hide();
                 $("#btnSil").hide();
-                $("#baslik").html("Yeni Kayıt");
+                $("#baslik").html("Yeni Görev Ekle");
                 $("#txtTitle").val("");
                 $("#txtId").val("0");
                 $("#cbStatus").val(0);
