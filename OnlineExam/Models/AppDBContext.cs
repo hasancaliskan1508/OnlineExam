@@ -1,8 +1,9 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 
 namespace OnlineExam.Models
 {
-    public class AppDBContext: DbContext
+    public class AppDBContext: IdentityDbContext<AppUser, AppRole, string>
     {
         public AppDBContext(DbContextOptions options) : base(options)
         {

@@ -9,26 +9,33 @@ using OnlineExam.ViewModels;
 using System;
 using System.Diagnostics;
 using System.Security.Claims;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Authorization;
 
 namespace OnlineExam.Controllers
 {
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
-        private readonly AppDBContext _context;
+
         private readonly INotyfService _notify;
         private readonly IConfiguration _config;
         private readonly IFileProvider _fileProvider;
-        public HomeController(ILogger<HomeController> logger, AppDBContext context, INotyfService notify ,IConfiguration config, IFileProvider fileProvider)
+
+        private readonly UserManager<AppUser> _userManager;
+        private readonly RoleManager<AppRole> _roleManager;
+        private readonly SignInManager<AppUser> _signInManager;
+        private readonly AppDBContext _context;
+
+        public HomeController(UserManager<AppUser> userManager, RoleManager<AppRole> roleManager, SignInManager<AppUser> signInManager, AppDBContext context)
         {
-            _logger = logger;
+            _userManager = userManager;
+            _roleManager = roleManager;
+            _signInManager = signInManager;
             _context = context;
-            _notify = notify;
-            _config = config;
-            _fileProvider = fileProvider;
         }
 
-               public IActionResult Index()
+        public IActionResult Index()
         {
             return View();
         }
@@ -44,93 +51,89 @@ namespace OnlineExam.Controllers
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
 
+        [AllowAnonymous]
         public IActionResult Register()
         {
             return View();
         }
+
+        [AllowAnonymous]
         [HttpPost]
-        public IActionResult Register(RegisterModel model)
+        public async Task<IActionResult> Register(RegisterModel model)
         {
-            if (_context.Students.Count(s => s.UserName == model.UserName) > 0)
+
+
+            if (!ModelState.IsValid)
             {
-                ViewBag.username = " Bu Kullanici Adi Kayitlidir!";
-                //_notify.Error("Girilen Kullanıcı Adı Kayıtlıdır!");
+                return View(model);
+
+            }
+            var identityResult = await _userManager.CreateAsync(new() { UserName = model.UserName, Email = model.Email, FullName = model.FullName }, model.Password);
+
+            if (!identityResult.Succeeded)
+            {
+                foreach (var item in identityResult.Errors)
+                {
+                    ModelState.AddModelError("", item.Description);
+                }
+
                 return View(model);
             }
-            if (_context.Students.Count(s => s.Email == model.Email) > 0)
-            {
-                ViewBag.email = " Bu E-mail Kayitlidir!";
-                //_notify.Error("Girilen E-Posta Adresi Kayıtlıdır!");
 
-                return View(model);
+            // default olarak Uye rolü ekleme
+            var user = await _userManager.FindByNameAsync(model.UserName);
+            var roleExist = await _roleManager.RoleExistsAsync("Ogrenci");
+            if (!roleExist)
+            {
+                var role = new AppRole { Name = "Ogrenci" };
+                await _roleManager.CreateAsync(role);
             }
-            var rootFolder = _fileProvider.GetDirectoryContents("wwwroot");
-            var photoUrl = "-";
-            if (model.PhotoFile.Length > 0 && model.PhotoFile != null)
-            {
-                var filename = Guid.NewGuid().ToString() + Path.GetExtension(model.PhotoFile.FileName);
-                var photoPath = Path.Combine(rootFolder.First(x => x.Name == "Photos").PhysicalPath, filename);
-                using var stream = new FileStream(photoPath, FileMode.Create);
-                model.PhotoFile.CopyTo(stream);
-                photoUrl = filename;
 
-            }
-            var hashedpass = MD5Hash(model.Password);
-            Student student = new Student()
-            {
-                Email = model.Email,
-                FullName = model.FullName,
-                Password = hashedpass,
-                PhotoUrl = photoUrl,
-                UserName = model.UserName,
+            await _userManager.AddToRoleAsync(user, "Ogrenci");
 
-                
-            };
-            _context.Students.Add(student);
-            _context.SaveChanges();
-            ViewBag.Student =" Basariyla Kayit Oldunuz!";
-            //_notify.Success("Üye Kaydı Yapılmıştır. Oturum Açınız");
+            return RedirectToAction("Login");
+        }
+        public IActionResult AccessDenied()
+        {
             return View();
         }
+
+
+        [AllowAnonymous]
         public IActionResult Login()
         {
             return View();
         }
+
+        [AllowAnonymous]
         [HttpPost]
-        public IActionResult Login(LoginModel model)
+        public async Task<IActionResult> Login(LoginModel model)
         {
-            var hashedpass = MD5Hash(model.Password);
-            var user = _context.Students.Where(s => s.UserName == model.UserName && s.Password == hashedpass).SingleOrDefault();
 
+            var user = await _userManager.FindByNameAsync(model.UserName);
             if (user == null)
-
             {
-                _notify.Error("Kullanıcı Adı veya Parola Geçersizdir!");
+                ModelState.AddModelError(string.Empty, "Geçersiz Kullanıcı Adı veya Parola!");
                 return View();
             }
+            var signInResult = await _signInManager.PasswordSignInAsync(user, model.Password, model.KeepMe, true);
 
-            List<Claim> claims = new List<Claim>() {
-
-                new Claim(ClaimTypes.Name, user.FullName),
-                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-                new Claim("UserName",user.UserName),
-                new Claim("PhotoUrl",user.PhotoUrl),
-
-                };
-
-            ClaimsIdentity idetity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-
-            ClaimsPrincipal principal = new ClaimsPrincipal(idetity);
-
-            AuthenticationProperties properties = new AuthenticationProperties()
+            if (signInResult.Succeeded)
             {
-                AllowRefresh = true,
-                IsPersistent = model.KeepMe
-            };
-            HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal, properties);
-
-            return RedirectToAction("Index","ToDo");
+                return RedirectToAction("Index");
+            }
+            if (signInResult.IsLockedOut)
+            {
+                ModelState.AddModelError("", "Kullanıcı Girişi " + user.LockoutEnd + " kadar kısıtlanmıştır!");
+                return View();
+            }
+            ModelState.AddModelError("", "Geçersiz Kullanıcı Adı veya Parola Başarısız Giriş Sayısı :" + await _userManager.GetAccessFailedCountAsync(user) + "/3");
+            return View();
         }
+
+
+
+
 
         public string MD5Hash(string pass)
         {

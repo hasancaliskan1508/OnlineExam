@@ -1,7 +1,9 @@
 using AspNetCoreHero.ToastNotification;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
 using OnlineExam.Models;
+using System;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,6 +22,9 @@ builder.Services.AddDbContext<AppDBContext>(opt =>
     opt.UseSqlServer(builder.Configuration.GetConnectionString("sqlCon"));
 });
 
+builder.Services.AddIdentity<AppUser, AppRole>(options =>
+{})
+.AddEntityFrameworkStores<AppDBContext>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -34,7 +39,7 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
-
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllerRoute(
