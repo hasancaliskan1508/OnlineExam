@@ -15,5 +15,7 @@ namespace OnlineExam.ViewModels
 
         [Display(Name = "Beni Hatırla")]
         public bool KeepMe { get; set; }
+
+        public string AppRole { get; set; } 
     }
 }
