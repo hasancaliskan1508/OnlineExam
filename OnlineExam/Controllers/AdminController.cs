@@ -25,8 +25,7 @@ namespace OnlineExam.Controllers
         }
         public IActionResult Index()
         {
-            var studentCount = _context.Students.Count();
-            ViewBag.students = studentCount;
+          
 
             var activeToDo = _context.ToDoLists.Where(x => x.Status==1).Count();
             ViewBag.activeToDo = activeToDo;
@@ -42,6 +41,8 @@ namespace OnlineExam.Controllers
         [AllowAnonymous]
         public IActionResult Login()
         {
+
+            var list=_context.ExamResults.FirstOrDefault();
             return View();
         }
 
@@ -70,6 +71,70 @@ namespace OnlineExam.Controllers
             ModelState.AddModelError("", "Geçersiz Kullanıcı Adı veya Parola Başarısız Giriş Sayısı :" + await _userManager.GetAccessFailedCountAsync(user) + "/3");
             return View();
         }
+
+        public IActionResult AddExam()
+        {
+            
+
+            return View();
+
+        }
+
+        [HttpPost]
+        public IActionResult AddExam(ExamModel model)
+        {
+            Exam exam = new Exam()
+            {
+                ExamName = model.ExamName,
+                ExamDate = model.ExamDate,
+                LessonId = model.LessonID,
+            };
+            _context.Add(exam);
+            _context.SaveChanges();
+
+            return RedirectToAction("Index");
+
+        }
+
+        public IActionResult AddQuestionAndOptions()
+        {
+
+
+            return View();
+
+        }
+
+        [HttpPost]
+        public IActionResult AddQuestionAndOptions(QuestionAndOptions model)
+        {
+            QuestionAndOptions questionAndOptions = new QuestionAndOptions()
+            {
+                QuestionText = model.QuestionText,
+                A = model.A,
+                B = model.B,
+                C = model.C,
+                D = model.D,
+                CorrectAnswer = model.CorrectAnswer,
+                ExamId = model.ExamId,
+
+            };
+            _context.Add(questionAndOptions);
+            _context.SaveChanges();
+
+            return RedirectToAction("Index");
+
+        }
+
+        public IActionResult ListExams()
+        {
+            ViewBag.AppUsers=_context.Users.ToList();
+            ViewBag.Exams=_context.Exams.ToList();
+
+            List<ExamResult>list=_context.ExamResults.ToList();
+
+            return View(list);
+        }
+
 
 
     }

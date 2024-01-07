@@ -120,7 +120,9 @@ namespace OnlineExam.Controllers
 
             if (signInResult.Succeeded)
             {
-                return RedirectToAction("Index");
+                var userID = user.Id;
+                TempData["User"] = userID;
+                return RedirectToAction("Index", "AppUser");
             }
             if (signInResult.IsLockedOut)
             {

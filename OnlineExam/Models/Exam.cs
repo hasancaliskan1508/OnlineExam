@@ -7,7 +7,7 @@
         public DateTime ExamDate { get; set; }
         public int LessonId { get; set; }
         public Lesson Lesson { get; set; }
-        public List<Question> Questions { get;}
+        public List<QuestionAndOptions> Questions { get;}
         public List<ExamResult> ExamResults { get; set; }
 
 

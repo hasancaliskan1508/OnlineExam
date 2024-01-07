@@ -1,0 +1,61 @@
+﻿@model OnlineExam.ViewModels.QuestionAndOptionsModel
+
+@{
+    ViewData["Title"] = "AddQuestionAndOptions";
+    //Layout = "~/Views/Shared/_LayoutAdminLTE.cshtml";
+}
+
+<h1>AddQuestionAndOptions</h1>
+
+<h4>QuestionAndOptionsModel</h4>
+<hr />
+<div class="row " >
+    <div class="col-md-4">
+        <form asp-action="AddQuestionAndOptions">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="QuestionText" class="control-label"></label>
+                <input asp-for="QuestionText" class="form-control" />
+                <span asp-validation-for="QuestionText" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="A" class="control-label"></label>
+                <input asp-for="A" class="form-control" />
+                <span asp-validation-for="A" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="B" class="control-label"></label>
+                <input asp-for="B" class="form-control" />
+                <span asp-validation-for="B" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="C" class="control-label"></label>
+                <input asp-for="C" class="form-control" />
+                <span asp-validation-for="C" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="D" class="control-label"></label>
+                <input asp-for="D" class="form-control" />
+                <span asp-validation-for="D" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="CorrectAnswer" class="control-label"></label>
+                <input asp-for="CorrectAnswer" class="form-control" />
+                <span asp-validation-for="CorrectAnswer" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="ExamId" class="control-label"></label>
+                <input asp-for="ExamId" class="form-control" />
+                <span asp-validation-for="ExamId" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
