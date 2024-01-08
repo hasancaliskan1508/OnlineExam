@@ -19,24 +19,27 @@
                 </tr>
             </thead>
             <tbody>
-
-                @foreach (var item in Model)
+                @if (Model!=null)
                 {
-                    <tr class="gradeX">
+                    @foreach (var item in Model)
+                    {
+                        <tr class="gradeX">
 
-                        <td>@item.CorrectCount</td>
-                        <td class="center hidden-phone">@item.WrongCount</td>
-                        <td class="center hidden-phone">@item.Result</td>
-                        @{
-                            string deger = exams.FirstOrDefault(x => x.ExamId == item.ExamId).ExamName;
-                        }
+                            <td>@item.CorrectCount</td>
+                            <td class="center hidden-phone">@item.WrongCount</td>
+                            <td class="center hidden-phone">@item.Result</td>
+                            @{
+                                string deger = exams.FirstOrDefault(x => x.ExamId == item.ExamId).ExamName;
+                            }
 
                             <td class="center hidden-phone">@deger</td>
-                       
-                        
-                        
-                    </tr>
+
+
+
+                        </tr>
+                    }
                 }
+               
             </tbody>
         </table>
 

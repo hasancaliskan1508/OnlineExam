@@ -14,17 +14,25 @@
         var item = Model[i];
         <h3>@sayi-) @item.QuestionText</h3>
 
-        <input name="Question@(i + 1)" type="radio" value="A" />
-        <label>@item.A</label>
-        <br />
-        <input name="Question@(i + 1)" type="radio" value="B" />
-        <label>@item.B</label>
-        <br />
-        <input name="Question@(i + 1)" type="radio" value="C" />
-        <label>@item.C</label>
-        <br />
-        <input name="Question@(i + 1)" type="radio" value="D" />
-        <label>@item.D</label>
+        <label>
+            <input name="questionAndOptions[@i].SelectedOption" type="radio" value="A" />
+            @item.A
+        </label>
+
+        <label>
+            <input name="questionAndOptions[@i].SelectedOption" type="radio" value="B" />
+            @item.B
+        </label>
+
+        <label>
+            <input name="questionAndOptions[@i].SelectedOption" type="radio" value="C" />
+            @item.C
+        </label>
+
+        <label>
+            <input name="questionAndOptions[@i].SelectedOption" type="radio" value="D" />
+            @item.D
+        </label>
 
         sayi++;
     }
