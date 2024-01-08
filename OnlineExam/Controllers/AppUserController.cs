@@ -19,7 +19,7 @@ namespace OnlineExam.Controllers
         {
             string user = TempData["User"].ToString();
 
-            ViewBag.exams = _context.Exams.ToList() ;
+            ViewBag.exams = _context.Exams.ToList();
 
 
             List<ExamResult> results = _context.ExamResults.Where(x => x.AppUserID == user).ToList(); ;
@@ -27,5 +27,19 @@ namespace OnlineExam.Controllers
 
             return View(results);
         }
+
+        public IActionResult Sinavlar()
+        {
+           List<QuestionAndOptions> model= _context.QuestionsAndOptions.ToList();
+            return View(model);
+        }
+
+        [HttpPost]
+        public IActionResult Sinavlar(List<QuestionAndOptions> questionAndOptions)
+        {
+          
+            return RedirectToAction("Index");
+        }
+
     }
 }

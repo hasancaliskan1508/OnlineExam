@@ -1,0 +1,34 @@
+﻿@model List<QuestionAndOptions>
+@{
+    ViewData["Title"] = "Sinavlar";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    int sayi = 1;
+}
+
+<form asp-controller="AppUser" asp-action="Sinavlar" method="post">
+
+    <h1>Bu kimin sinavi</h1>
+
+    @for (var i = 0; i < Model.Count; i++)
+    {
+        var item = Model[i];
+        <h3>@sayi-) @item.QuestionText</h3>
+
+        <input name="Question@(i + 1)" type="radio" value="A" />
+        <label>@item.A</label>
+        <br />
+        <input name="Question@(i + 1)" type="radio" value="B" />
+        <label>@item.B</label>
+        <br />
+        <input name="Question@(i + 1)" type="radio" value="C" />
+        <label>@item.C</label>
+        <br />
+        <input name="Question@(i + 1)" type="radio" value="D" />
+        <label>@item.D</label>
+
+        sayi++;
+    }
+
+    <button type="submit">Cevapla</button>
+</form>
+

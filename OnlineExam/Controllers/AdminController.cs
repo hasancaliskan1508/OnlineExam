@@ -23,6 +23,8 @@ namespace OnlineExam.Controllers
             _signInManager = signInManager;
             _context = context;
         }
+
+        [Authorize(Roles = "Admin")]
         public IActionResult Index()
         {
           
@@ -38,7 +40,7 @@ namespace OnlineExam.Controllers
             return View();                       
         }
 
-        [AllowAnonymous]
+       
         public IActionResult Login()
         {
 
@@ -46,7 +48,6 @@ namespace OnlineExam.Controllers
             return View();
         }
 
-        [AllowAnonymous]
         [HttpPost]
         public async Task<IActionResult> Login(LoginModel model)
         {
@@ -135,7 +136,11 @@ namespace OnlineExam.Controllers
             return View(list);
         }
 
+        public IActionResult AccessDenied()
+        {
+            return View();
+        }
 
 
+        }
     }
-}
