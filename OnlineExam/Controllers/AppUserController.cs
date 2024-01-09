@@ -38,6 +38,7 @@ namespace OnlineExam.Controllers
         {
             TempData["User"] = id;
             TempData["Examid"] = ExamID;
+            ViewBag.dersAdi = _context.Exams.FirstOrDefault(x => x.ExamId == ExamID).ExamName;
 
            List<QuestionAndOptions> model= _context.QuestionsAndOptions.Where(x=>x.ExamId==ExamID).ToList();
             return View(model);

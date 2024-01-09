@@ -28,8 +28,19 @@ namespace OnlineExam.Controllers
         [Authorize(Roles = "Admin")]
         public IActionResult Index()
         {
-          
 
+            double matFSonuc = _context.ExamResults.Where(x => x.ExamId == 5).Average(x => x.Result);
+
+            ViewBag.matFSonuc = matFSonuc.ToString().Substring(0, 5);
+
+            double vizeKimyaTop=_context.ExamResults.Where(x=>x.ExamId==4).Max(x => x.Result);
+            string appUserID = _context.ExamResults.FirstOrDefault(x => x.ExamId == 4 && x.Result == vizeKimyaTop).AppUserID;
+            ViewBag.KVTop= _context.Users.FirstOrDefault(x => x.Id == appUserID).FullName;
+
+            
+
+            ViewBag.sinavlar = _context.Exams.Count();
+            ViewBag.students=_context.Users.Count();
             var activeToDo = _context.ToDoLists.Where(x => x.Status==1).Count();
             ViewBag.activeToDo = activeToDo;
 
