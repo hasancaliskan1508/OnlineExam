@@ -34,15 +34,20 @@ namespace OnlineExam.Controllers
            
         }
 
-        public IActionResult Sinavlar()
+        public IActionResult Sinavlar(string? id,int ExamID)
         {
-           List<QuestionAndOptions> model= _context.QuestionsAndOptions.ToList();
+            TempData["User"] = id;
+            TempData["Examid"] = ExamID;
+
+           List<QuestionAndOptions> model= _context.QuestionsAndOptions.Where(x=>x.ExamId==ExamID).ToList();
             return View(model);
         }
 
         [HttpPost]
-        public IActionResult Sinavlar(List<QuestionAndOptions> questionAndOptions)
+        public IActionResult Sinavlar(List<QuestionAndOptions> questionAndOptions, int ExamID,string? id)
         {
+            ExamID = Convert.ToInt32(TempData["Examid"]);
+            id = TempData["User"].ToString();
             int result = 0;
             int correctCount = 0;
             int wrongCount = 0;
@@ -61,15 +66,15 @@ namespace OnlineExam.Controllers
             };
             ExamResult examResult = new ExamResult()
             {
-                AppUserID = "3e06c083-939c-4b38-9179-7b67f69ade68",
-                ExamId=1,
+                AppUserID = id,
+                ExamId= ExamID,
                 CorrectCount=correctCount,
                 WrongCount=wrongCount,
                 Result=result,
 
             };
             _context.ExamResults.Add(examResult);
-           // _context.SaveChanges();
+            _context.SaveChanges();
             
             return RedirectToAction("Index");
         }

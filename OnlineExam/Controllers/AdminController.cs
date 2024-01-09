@@ -6,6 +6,7 @@ using OnlineExam.ViewModels;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
+using System.Data;
 
 namespace OnlineExam.Controllers
 {
@@ -141,6 +142,39 @@ namespace OnlineExam.Controllers
             return View();
         }
 
+        public IActionResult AddRole()
+        {
+            List<AppUser> users = _context.Users.ToList();  
+            return View(users);
 
         }
+        [HttpPost]
+        public async Task<IActionResult> AddRole(string Role, AppUser appUser)
+        {
+
+            var roleExist = await _roleManager.RoleExistsAsync(Role);
+            if (!roleExist)
+            {
+                AppRole appRole2 = new AppRole()
+                {
+                    Name = Role,
+                };
+                await _roleManager.CreateAsync(appRole2);
+                _context.SaveChanges();
+            };
+
+           
+
+            AppUser User=_context.Users.FirstOrDefault(x=>x.FullName==appUser.FullName);
+
+            await _userManager.AddToRoleAsync(User, Role);
+
+                   return RedirectToAction("Index");
+
+        }
+
+      
+
+    }
+    
     }

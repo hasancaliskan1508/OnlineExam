@@ -1,7 +1,7 @@
 ﻿@model List<QuestionAndOptions>
 @{
     ViewData["Title"] = "Sinavlar";
-    Layout = "~/Views/Shared/_Layout.cshtml";
+    Layout = "_EmptyLayout";
     int sayi = 1;
 }
 
@@ -15,28 +15,28 @@
         <h3>@sayi-) @item.QuestionText</h3>
 
         <label>
-            <input name="questionAndOptions[@i].SelectedOption" type="radio" value="A" />
+            <input name="questionAndOptions[@i].SelectedOption" type="radio" value="@item.A" />
             @item.A
         </label>
 
         <label>
-            <input name="questionAndOptions[@i].SelectedOption" type="radio" value="B" />
+            <input name="questionAndOptions[@i].SelectedOption" type="radio" value="@item.B" />
             @item.B
         </label>
 
         <label>
-            <input name="questionAndOptions[@i].SelectedOption" type="radio" value="C" />
+            <input name="questionAndOptions[@i].SelectedOption" type="radio" value="@item.C" />
             @item.C
         </label>
 
         <label>
-            <input name="questionAndOptions[@i].SelectedOption" type="radio" value="D" />
+            <input name="questionAndOptions[@i].SelectedOption" type="radio" value="@item.D" />
             @item.D
         </label>
 
         sayi++;
     }
-
+    <br />
     <button type="submit">Cevapla</button>
 </form>
 
